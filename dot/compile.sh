@@ -1,0 +1,1 @@
+gcc-14 -O3 -ffast-math -march=native -fopt-info-vec-optimized dot.c -o out
