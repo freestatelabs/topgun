@@ -42,12 +42,13 @@ On MacOS, compiled with:
 ```bash
 gcc-14 -O3 -ffast-math -march=native ellipk.c -o test && ./test
 ```
-The reference implementation solves in `12.1 ms` with the following settings:
-- `N = 100000`: number of values of `k2` 
+The reference implementation solves in `5.1 ms` with the following settings:
+- `N = 1e6`: number of values of `k2` 
 - `ERRMAX = 1e-12`: acceptable numerical error in the output 
 
-What's interesting is that at this max error level, all values of `k2` required 5 
-or fewer iterations of the function to solve. What if we unrolled the loop explicitly?  
+What's interesting is that at this max error level, all values of `k2` required on average `Nt=3.7` (`max(Nt)=6`) iterations of the loop to solve. What if we unrolled the loop explicitly and precomputed a few iterations before entering the loop?  
+
+![convergence](convergence.svg)
 
 ### Improved Implementation Performance 
 
@@ -82,13 +83,24 @@ double ellipKfast(double k2) {
 }
 ```
 
-Computing 3x iterations before entering the loop resulted in a ~`27%` speed improvement 
-on this machine! 
+Computing 3x iterations before entering the loop resulted in a ~`27%` speed improvement on this machine! 
 
 Note that this result was dependent on a lot of factors:
 - `ERRMAX`: if the error tolerance was lower, the performance gains were minimal, or the 'improved' version actually ran slower! This is likely because it was precomputing unnecessary iterations
 - Number of precomputed iterations: I tried 1-5x iterations. I found that 4 resulted in lower gains, and 5 actually reduced the speed of the algorithm. 3 seemed optimal.
-- Amount of `k2` values calculated: I benchmarked this for `N=10` to `N=1e7`. For 3 precomputed iterations, the performance increase was stable, but for other values, it increased or decreased. There's likely more to the story that I'm missing. 
+- Amount of `k2` values calculated: I benchmarked this for `N=10` to `N=1e6`. For 3 precomputed iterations, the performance increase was stable, but for other values, it increased or decreased. There's likely more to the story that I'm missing. 
+
+| Precompute Iterations | Speedup | 
+| -- | --- | 
+| 1 | 2.3% (basically the same)|
+| 2 | 5.89% | 
+| 3 | 14.4% | 
+| 4 | 17.54%| 
+| 5 | 0% |
+
+### Further Improvements - Blocking
+
+Another thing I noticed while looking at the number of loop iterations is a bifurcation - 
 
 ### Conclusion 
 
