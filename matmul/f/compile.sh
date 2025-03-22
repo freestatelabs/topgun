@@ -1,0 +1,1 @@
+gfortran -O3 matmul2.f90 -o matmul2.out

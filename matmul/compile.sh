@@ -1,1 +1,2 @@
-clang -o3 -ffast-math -march=native -funroll-loops -fno-tree-vectorize matmul3.c -o out
+# -funroll-loops -fno-tree-vectorize
+gcc -O3 -march=native  matmul.c -o matmul.cout
