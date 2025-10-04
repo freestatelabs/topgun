@@ -1,0 +1,1 @@
+gcc-14 -O3 crossrows.c -o cross.o
